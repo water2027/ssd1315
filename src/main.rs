@@ -359,5 +359,16 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     ins.draw_text(0, 0, "hello,world!");
     ins.display()?;
 
+    ins.set_dim()?;
+    std::thread::sleep(std::time::Duration::from_secs(2));
+
+    ins.set_contrast(0xcf)?;
+    std::thread::sleep(std::time::Duration::from_secs(2));
+
+    ins.sleep()?;
+    std::thread::sleep(std::time::Duration::from_secs(2));
+
+    ins.wake()?;
+
     Ok(())
 }
