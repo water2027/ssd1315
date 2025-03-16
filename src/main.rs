@@ -222,10 +222,14 @@ impl SSD1315 {
     fn draw_char(&mut self, x: usize, y: usize, c: char) {
         // 只支持0-9, a-z
         let font_index = match c {
-            '0'..='9' => c as usize - '0' as usize,
-            'a'..='z' => c as usize - 'a' as usize + 10,
-            _ => return, // 不支持的字符，不绘制
-        };
+        '0'..='9' => c as usize - '0' as usize,
+        'a'..='z' => c as usize - 'a' as usize + 10,
+        ',' => 36,  // Comma
+        '.' => 37,  // Period
+        '!' => 38,  // Exclamation mark
+        '?' => 39,  // Question mark
+        _ => return, // Unsupported character, don't draw
+    };
 
         // 检查索引是否在范围内
         if font_index >= font8x8::FONT8X8.len() {
@@ -306,6 +310,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     println!("SSD1315 初始化完成");
 
+    ins.draw_text(0, 0, "hello,world!");
     ins.display()?;
 
     Ok(())
