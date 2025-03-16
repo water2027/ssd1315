@@ -129,6 +129,52 @@ impl SSD1315 {
         self.buffer.fill(0);
     }
 
+    /// Set the display to a dimmed state (lower contrast)
+    /// level should be between 0 (minimum contrast) and 255 (maximum contrast)
+    fn set_contrast(&mut self, level: u8) -> Result<(), Error> {
+        println!("设置对比度: {}", level);
+        self.send_command(SSD1315_SET_CONTRAST)?;
+        self.send_command(level)?;
+        Ok(())
+    }
+
+    /// Put the display into dim mode (very low contrast to save power)
+    fn set_dim(&mut self) -> Result<(), Error> {
+        println!("设置低亮度模式");
+        self.set_contrast(0x0F) // Very low contrast value
+    }
+
+    /// Put the display into sleep mode (lowest power consumption)
+    /// Note: Display RAM content is preserved, but display is off
+    fn sleep(&mut self) -> Result<(), Error> {
+        println!("进入睡眠模式");
+        // Turn off the display
+        self.send_command(SSD1315_DISPLAY_OFF)?;
+
+        // Disable the charge pump
+        self.send_command(SSD1315_CHARGE_PUMP)?;
+        self.send_command(0x10)?; // Disable charge pump
+
+        Ok(())
+    }
+
+    /// Wake up the display from sleep mode
+    fn wake(&mut self) -> Result<(), Error> {
+        println!("退出睡眠模式");
+
+        // Re-enable the charge pump
+        self.send_command(SSD1315_CHARGE_PUMP)?;
+        self.send_command(0x14)?; // Enable charge pump
+
+        // Turn on the display
+        self.send_command(SSD1315_DISPLAY_ON)?;
+
+        // You might need to refresh the display content here
+        self.display()?;
+
+        Ok(())
+    }
+
     /// 将缓冲区内容发送到显示器
     /// 如果未开启显示器，会开启显示器
     fn display(&mut self) -> Result<(), Error> {
@@ -222,14 +268,14 @@ impl SSD1315 {
     fn draw_char(&mut self, x: usize, y: usize, c: char) {
         // 只支持0-9, a-z
         let font_index = match c {
-        '0'..='9' => c as usize - '0' as usize,
-        'a'..='z' => c as usize - 'a' as usize + 10,
-        ',' => 36,  // Comma
-        '.' => 37,  // Period
-        '!' => 38,  // Exclamation mark
-        '?' => 39,  // Question mark
-        _ => return, // Unsupported character, don't draw
-    };
+            '0'..='9' => c as usize - '0' as usize,
+            'a'..='z' => c as usize - 'a' as usize + 10,
+            ',' => 36,   // Comma
+            '.' => 37,   // Period
+            '!' => 38,   // Exclamation mark
+            '?' => 39,   // Question mark
+            _ => return, // Unsupported character, don't draw
+        };
 
         // 检查索引是否在范围内
         if font_index >= font8x8::FONT8X8.len() {
