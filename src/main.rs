@@ -250,6 +250,40 @@ impl SSD1315 {
             }
         }
     }
+
+    /// 绘制文本
+    /// x, y: 文本左上角的坐标
+    /// text: 要显示的文本
+    fn draw_text(&mut self, x: usize, y: usize, text: &str) {
+        let mut current_x = x;
+        let mut current_y = y;
+
+        for c in text.chars() {
+            // 处理换行符
+            if c == '\n' {
+                current_x = x; // 回到初始x位置
+                current_y += 8; // 移动到下一行
+                continue;
+            }
+
+            // 检查是否需要自动换行
+            if current_x + 8 > SSD1315_WIDTH as usize {
+                current_x = x;
+                current_y += 8; // 移动到下一行
+            }
+
+            // 检查是否超出屏幕底部
+            if current_y + 8 > SSD1315_HEIGHT as usize {
+                break;
+            }
+
+            // 绘制字符
+            self.draw_char(current_x, current_y, c);
+
+            // 移动到下一个字符位置
+            current_x += 8; // 每个字符宽度为8像素
+        }
+    }
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -271,7 +305,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     println!("SSD1315 初始化完成");
-
 
     ins.display()?;
 
