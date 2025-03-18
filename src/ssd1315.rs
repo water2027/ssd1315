@@ -310,18 +310,18 @@ impl SSD1315 {
             // 处理换行符
             if c == '\n' {
                 current_x = x; // 回到初始x位置
-                current_y += 8; // 移动到下一行
+                current_y += 1; // 移动到下一行
                 continue;
             }
 
             // 检查是否需要自动换行
-            if current_x + 8 > SSD1315_WIDTH as usize {
+            if (current_x + 1) * 8 > SSD1315_WIDTH as usize {
                 current_x = x;
-                current_y += 8; // 移动到下一行
+                current_y += 1; // 移动到下一行
             }
 
             // 检查是否超出屏幕底部
-            if current_y + 8 > SSD1315_HEIGHT as usize {
+            if (current_y + 1) * 8 > SSD1315_HEIGHT as usize {
                 break;
             }
 
@@ -329,7 +329,7 @@ impl SSD1315 {
             self.draw_char(current_x, current_y, c);
 
             // 移动到下一个字符位置
-            current_x += 8; // 每个字符宽度为8像素
+            current_x += 1; // 每个字符宽度为8像素
         }
     }
 }

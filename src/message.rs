@@ -35,8 +35,8 @@ impl IoEvent {
         }
 
         if len >= 3 {
-            if let (Ok(x), Ok(y)) = (parts[0].parse::<usize>(), parts[1].parse::<usize>()) {
-                let text = parts[2..].join(" ");
+            if let (Ok(x), Ok(y)) = (parts[1].parse::<usize>(), parts[2].parse::<usize>()) {
+                let text = parts[3..].join(" ");
                 return IoEvent::Write(x, y, text);
             }
         }
