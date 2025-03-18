@@ -332,4 +332,57 @@ impl SSD1315 {
             current_x += 1; // 每个字符宽度为8像素
         }
     }
+    pub fn draw_processed_bitmap(&mut self, x: usize, y: usize, bitmap: &[u8], w: usize, h: usize) {
+        if bitmap.len() < w * ((h + 7) / 8) {
+            return; // 数组太小，无法包含指定尺寸的位图
+        }
+
+        let pages = (h + 7) / 8;
+
+        for page in 0..pages {
+            if y + page * 8 >= SSD1315_HEIGHT as usize {
+                break;
+            }
+
+            for x_pos in 0..w {
+                if x + x_pos >= SSD1315_WIDTH as usize {
+                    break;
+                }
+
+                let src_index = x_pos + page * w;
+                if src_index < bitmap.len() {
+                    let byte_value = bitmap[src_index];
+
+                    // 计算目标缓冲区中对应的页和索引
+                    let dst_page = (y / 8) + page;
+                    let y_offset = y % 8;
+                    let dst_index = (x + x_pos) + dst_page * (SSD1315_WIDTH as usize);
+
+                    if dst_index < self.buffer.len() {
+                        if y_offset == 0 {
+                            // 页对齐，可以直接写入
+                            self.buffer[dst_index] = byte_value;
+                        } else {
+                            // 需要分两部分写入
+                            // 先清除目标位置的相应位
+                            let mask_lower = !(0xFF << y_offset);
+                            let mask_upper = !(0xFF >> (8 - y_offset));
+
+                            self.buffer[dst_index] &= mask_lower;
+                            self.buffer[dst_index] |= byte_value << y_offset;
+
+                            // 处理跨页的部分
+                            if dst_page + 1 < (SSD1315_HEIGHT as usize) / 8 {
+                                let next_index = dst_index + (SSD1315_WIDTH as usize);
+                                if next_index < self.buffer.len() {
+                                    self.buffer[next_index] &= mask_upper;
+                                    self.buffer[next_index] |= byte_value >> (8 - y_offset);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

@@ -2,6 +2,7 @@ mod font8x8;
 mod io_handler;
 mod message;
 mod ssd1315;
+mod water;
 use crate::io_handler::IoHandler;
 use crate::message::IoEvent;
 use ssd1315::SSD1315;
@@ -33,6 +34,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
 
         println!("SSD1315 初始化完成");
+
+        ins.draw_processed_bitmap(0, 0, &water::IMAGE_BUFFER, 128, 64);
+        ins.display();
 
         while let Ok(cmd) = rx.recv() {
             match cmd {
