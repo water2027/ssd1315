@@ -326,7 +326,7 @@ impl SSD1315 {
             }
 
             // 绘制字符
-            self.draw_char(current_x, current_y, c);
+            self.draw_char(current_x * 8, current_y * 8, c);
 
             // 移动到下一个字符位置
             current_x += 1; // 每个字符宽度为8像素
