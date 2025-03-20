@@ -48,7 +48,7 @@ pub struct SSD1315 {
 
 impl SSD1315 {
     pub fn new(addr: u16) -> Self {
-        let mut ins = I2c::new().unwrap();
+        let mut ins = I2c::with_bus(0).unwrap();
         ins.set_slave_address(addr).unwrap();
         let buffer: [u8; SSD1315_BUFFER_SIZE] = [0; SSD1315_BUFFER_SIZE];
         SSD1315 { ins, buffer }
