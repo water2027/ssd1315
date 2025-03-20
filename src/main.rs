@@ -1,5 +1,6 @@
 mod font8x8;
 mod io_handler;
+mod lunai;
 mod message;
 mod ssd1315;
 mod water;
@@ -35,7 +36,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         println!("SSD1315 初始化完成");
 
-        ins.draw_processed_bitmap(0, 0, &water::IMAGE_BUFFER, 128, 64);
+        ins.draw_processed_bitmap(0, 0, &lunai::IMAGE_DATA, 128, 64);
         ins.display();
 
         while let Ok(cmd) = rx.recv() {
